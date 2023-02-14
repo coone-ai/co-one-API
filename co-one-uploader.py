@@ -65,7 +65,7 @@ def login():
     loginPassword = getpass.getpass('Please enter your password: ')
     print("\n--> Logging in to " + loginEmail, end="\r", flush=True)
 
-    loginUrl = "https://us-central1-co-one-app-dev-44eaa.cloudfunctions.net/api/v1/auth/login"
+    loginUrl = "https://us-central1-co-one-app-1252e.cloudfunctions.net/api/v1/auth/login"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -120,7 +120,7 @@ def renewLogin():
   global loginEmail
   global loginPassword
 
-  loginUrl = "https://us-central1-co-one-app-dev-44eaa.cloudfunctions.net/api/v1/auth/login"
+  loginUrl = "https://us-central1-co-one-app-1252e.cloudfunctions.net/api/v1/auth/login"
   headers = {
     'Content-Type': 'application/x-www-form-urlencoded'
   }
@@ -189,7 +189,7 @@ def uploadFile(auth):
       projectID = selectedProjectID
       print("Selected project: " + selectedProjectName)
 
-    uploadUrl = "https://us-central1-co-one-app-dev-44eaa.cloudfunctions.net/api/v1/upload/" + projectID
+    uploadUrl = "https://us-central1-co-one-app-1252e.cloudfunctions.net/api/v1/upload/" + projectID
 
     print("\nEnter the path of your file to upload: ")
     filePath = input()
@@ -247,7 +247,7 @@ def uploadFolder(auth):
     else:
       projectID = selectedProjectID
 
-    uploadUrl = "https://us-central1-co-one-app-dev-44eaa.cloudfunctions.net/api/v1/upload/" + projectID
+    uploadUrl = "https://us-central1-co-one-app-1252e.cloudfunctions.net/api/v1/upload/" + projectID
     print("\nEnter the path of your folder to upload: ")
     folderPath = input()
 
