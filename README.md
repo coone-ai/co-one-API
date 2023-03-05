@@ -10,7 +10,7 @@
 
 >## To run this script;
 > 1. Make sure you have python installed.
-> 2. Download the script [here](https://github.com/gms10ur/co-one-api-uploader/releases)  and go to dowloaded folder
+> 2. Download the script [here](https://github.com/ataberkarman/co-one-API/releases)  and go to dowloaded folder
 > 3. Open a terminal on that folder. (You can also transfer this folder to a remote machine and run it there)
 > 4. Install the requirements -> `pip install -r requirements.txt`
 > 5. Run the script -> `python co-one-uploader.py`
