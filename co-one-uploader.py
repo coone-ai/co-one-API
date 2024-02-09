@@ -209,7 +209,7 @@ def uploadFile(auth):
     headers = {
       'Authorization': auth
     }
-    print(files,'files')
+
     r = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
     print(r.text)
     response = r.text.split(':')[1].split('"')[1]
@@ -248,16 +248,18 @@ def upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl, batch_s
         files = []
         for fileName in batch:
             filePath = os.path.join(folderPath, fileName)
-            files.append(('file', (fileName, open(filePath, 'rb'), 'image/')))
+            files.append(('file', (fileName, open(filePath, 'rb'), 'image')))
 
         payload = {}
-        headers = {'Authorization': auth }
+        headers = {'Authorization': auth}
 
         r = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
-        response = r.text.split(':')[1].split('"')[1]
-        time.sleep(20)
+        if r.status_code == 200 or r.status_code == 201:
+          response = r.text.split(':')[1].split('"')[1]
+        else:
+          print("Error: " + str(r.text))
+        time.sleep(5)
         
-
 def uploadFolder(auth):
   
     if not projectSelected:
