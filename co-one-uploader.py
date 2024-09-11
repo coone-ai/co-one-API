@@ -251,7 +251,7 @@ def upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl, batch_s
             files.append(('file', (fileName, open(filePath, 'rb'), 'image')))
 
         payload = {}
-        headers = {'Authorization': auth}
+        headers = {'Authorization': authToken}
 
         r = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
         if r.status_code == 200 or r.status_code == 201:
@@ -259,7 +259,7 @@ def upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl, batch_s
         elif r.status_code == 403:
             print("Unauthorized error (403). Renewing login...")
             renewLogin()
-            headers = {'Authorization': auth}
+            headers = {'Authorization': authToken}
             
             # Retry the upload after renewing the login
             r = requests.post(uploadUrl, headers=headers, data=payload, files=files)
