@@ -243,6 +243,7 @@ def chunkify(lst, chunk_size):
         yield lst[i:i + chunk_size]
 
 def upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl, batch_size=50):
+    print('gogogogo')
     batches = list(chunkify(imagesInFolder, batch_size))
     for batch in tqdm(batches, desc="Batch Progress"):
         files = []
@@ -256,6 +257,18 @@ def upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl, batch_s
         r = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
         if r.status_code == 200 or r.status_code == 201:
           response = r.text.split(':')[1].split('"')[1]
+        elif r.status_code == 403:
+            print("Unauthorized error (403). Renewing login...")
+            renewLogin()
+            headers = {'Authorization': auth}
+            
+            # Retry the upload after renewing the login
+            r = requests.post(uploadUrl, headers=headers, data=payload, files=files)
+            if r.status_code == 200 or r.status_code == 201:
+                print("Batch upload successful after renewing login.")
+            else:
+                print("Error in response after retrying")
+                print("Failed to upload batch after renewing login.")
         else:
           print("Error: " + str(r.text))
         time.sleep(5)
