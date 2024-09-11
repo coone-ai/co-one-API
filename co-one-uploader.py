@@ -243,7 +243,6 @@ def chunkify(lst, chunk_size):
         yield lst[i:i + chunk_size]
 
 def upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl, batch_size=50):
-    print('gogogogo')
     batches = list(chunkify(imagesInFolder, batch_size))
     for batch in tqdm(batches, desc="Batch Progress"):
         files = []
