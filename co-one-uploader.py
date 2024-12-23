@@ -13,6 +13,7 @@ import requests
 from math import fabs
 from traceback import print_tb
 from alive_progress import alive_bar
+from tqdm import tqdm
 
 # Global variables
 global loginSuccessful
@@ -210,6 +211,7 @@ def uploadFile(auth):
     }
 
     r = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
+    print(r.text)
     response = r.text.split(':')[1].split('"')[1]
     if response == 'success':
       print("\n********** Upload Complete **********")
@@ -236,7 +238,40 @@ def uploadFile(auth):
         return False
 
 # -------------------------- UPLOAD FOLDER ----------------------------
+def chunkify(lst, chunk_size):
+    for i in range(0, len(lst), chunk_size):
+        yield lst[i:i + chunk_size]
 
+def upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl, batch_size=50):
+    batches = list(chunkify(imagesInFolder, batch_size))
+    for batch in tqdm(batches, desc="Batch Progress"):
+        files = []
+        for fileName in batch:
+            filePath = os.path.join(folderPath, fileName)
+            files.append(('file', (fileName, open(filePath, 'rb'), 'image')))
+
+        payload = {}
+        headers = {'Authorization': authToken}
+
+        r = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
+        if r.status_code == 200 or r.status_code == 201:
+          response = r.text.split(':')[1].split('"')[1]
+        elif r.status_code == 403:
+            print("Unauthorized error (403). Renewing login...")
+            renewLogin()
+            headers = {'Authorization': authToken}
+            
+            # Retry the upload after renewing the login
+            r = requests.post(uploadUrl, headers=headers, data=payload, files=files)
+            if r.status_code == 200 or r.status_code == 201:
+                print("Batch upload successful after renewing login.")
+            else:
+                print("Error in response after retrying")
+                print("Failed to upload batch after renewing login.")
+        else:
+          print("Error: " + str(r.text))
+        time.sleep(5)
+        
 def uploadFolder(auth):
   
     if not projectSelected:
@@ -281,35 +316,7 @@ def uploadFolder(auth):
     if askYesNo("Are you sure you want to upload these images? (y/n): "):
       print("\n")
 
-      with alive_bar(len(imagesInFolder), dual_line=True) as bar:
-        for i in range(len(imagesInFolder)):
-          bar.text = f'-> Uploading file: {imagesInFolder[i]}, please wait...'
-
-          filePath = folderPath + '/' + imagesInFolder[i]
-          fileName = imagesInFolder[i]
-          payload={}
-          files=[
-            ('file',(fileName, open(filePath,'rb'),'image/'))
-          ]
-          headers = {
-            'Authorization': auth
-          }
-
-          r = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
-          response = r.text.split(':')[1].split('"')[1]
-
-          if response != 'success':
-            renewLogin()
-            headers = {
-            'Authorization': auth
-            }
-            r2 = requests.request("POST", uploadUrl, headers=headers, data=payload, files=files)
-            response2 = r2.text.split(':')[1].split('"')[1]
-            if response2 != 'success':
-              print('Upload failed: ' + fileName + ' - reason: ' + response)
-          
-          bar()
-        
+      upload_files_in_batches(imagesInFolder, folderPath, auth, uploadUrl)
 
       print("\n********** Upload Complete **********\n")
       input("Press Enter to continue")
